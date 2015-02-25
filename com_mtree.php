@@ -11,7 +11,7 @@ defined('_JEXEC') or die;
 
 class xmap_com_mtree
 {
-    static function getTree($xmap, $parent, &$params)
+    public static function getTree($xmap, $parent, &$params)
     {
         if ($xmap->isNews) // This component does not provide news content. don't waste time/resources
             return false;
@@ -20,6 +20,7 @@ class xmap_com_mtree
 
         $catid = 0;
         if (strpos($parent->link, 'task=listcats')) {
+            // TODO new JUri
             $link_query = parse_url($parent->link);
             parse_str(html_entity_decode($link_query['query']), $link_vars);
             $catid = JArrayHelper::getValue($link_vars, 'cat_id', 0);
@@ -87,11 +88,11 @@ class xmap_com_mtree
                 $params['days'] = ' AND a.link_created >=\'' . date('Y-m-d H:i:s', ($xmap->now - ($days * 86400))) . "' ";
         }
 
-        xmap_com_mtree::getMtreeCategory($xmap, $parent, $params, $catid);
+        self::getMtreeCategory($xmap, $parent, $params, $catid);
     }
 
     /* Returns URLs of all Categories and links in of one category using recursion */
-    static function getMtreeCategory($xmap, $parent, &$params, $catid)
+    protected static function getMtreeCategory($xmap, $parent, &$params, $catid)
     {
         $database =& JFactory::getDbo();
 
@@ -117,7 +118,7 @@ class xmap_com_mtree
             $node->secure = $parent->secure;
 
             if ($xmap->printNode($node) !== FALSE) {
-                xmap_com_mtree::getMtreeCategory($xmap, $parent, $params, $row->cat_id);
+                self::getMtreeCategory($xmap, $parent, $params, $row->cat_id);
             }
         }
 
@@ -156,6 +157,5 @@ class xmap_com_mtree
             }
         }
         $xmap->changeLevel(-1);
-
     }
 }
